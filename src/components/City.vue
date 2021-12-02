@@ -1,8 +1,8 @@
 <template>
-  <div class="city">
+  <div @click="goToWeather" class="city">
     <i
       v-if="edit"
-      @click="removeCity"
+      @click.self="removeCity"
       class="far fa-trash-alt edit"
       ref="edit"
     />
@@ -20,6 +20,7 @@
 
 <script lang="ts">
 import { defineComponent, toRefs, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import {
   collection,
   query,
@@ -44,6 +45,8 @@ export default defineComponent({
     },
   },
   setup(props) {
+    const router = useRouter();
+
     const { city: cityDetail, editMode: edit } = toRefs(props);
 
     const temp = computed<number>( // @ts-ignore: Object is possibly 'null'.
@@ -65,6 +68,10 @@ export default defineComponent({
     );
 
     // methods
+    const goToWeather = () => {
+      router.push(`/weather/${cityDetail.value?.city}`);
+    };
+
     const removeCity = async () => {
       const q = query(
         collection(fireStore, 'cities'),
@@ -82,6 +89,7 @@ export default defineComponent({
       temp,
       videoSrc,
       src,
+      goToWeather,
       removeCity,
     };
   },

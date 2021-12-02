@@ -1,13 +1,25 @@
 <template>
   <div class="main">
     <modal v-if="modalShow" @close="toggleModal" :api="api" />
-    <navigation @add-city="toggleModal" @edit-city="toggleEditCity" />
-    <router-view v-bind="{ cities, isEditMode }" />
+    <navigation
+      :add-city-active="addCityActive"
+      @add-city="toggleModal"
+      @edit-city="toggleEditCity"
+      :is-day="isDay"
+      :is-night="isNight"
+    />
+    <router-view
+      v-bind="{ cities, isEditMode, api }"
+      @is-day="dayTime"
+      @is-night="nightTime"
+      @reset-days="resetDays"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import axios from 'axios';
 import { onSnapshot, collection, doc, updateDoc } from 'firebase/firestore';
 import firestore from './firebase/init';
@@ -19,11 +31,20 @@ import Modal from '@/components/Modal.vue';
 export default defineComponent({
   components: { Navigation, Modal },
   setup() {
+    const route = useRoute();
+
     const API_KEY = 'c8de308c605b0e7286c3a190a8ca12c6';
     const cities = ref<CityInterface[]>([]);
     const modalShow = ref<boolean>(false);
     const isEditMode = ref<boolean>(false);
+    const addCityActive = ref<boolean>(false);
+    const isDay = ref<boolean>(false);
+    const isNight = ref<boolean>(false);
     // methods
+    const checkRoute = () => {
+      addCityActive.value = route.name === 'AddCity';
+    };
+
     const toggleModal = () => {
       modalShow.value = !modalShow.value;
     };
@@ -72,6 +93,23 @@ export default defineComponent({
       });
     };
 
+    const dayTime = () => {
+      isDay.value = !isDay.value;
+    };
+
+    const nightTime = () => {
+      isNight.value = !isNight.value;
+    };
+
+    const resetDays = () => {
+      dayTime();
+      nightTime();
+    };
+
+    watch([route], () => {
+      checkRoute();
+    });
+
     // lifecycle
     onMounted(() => {
       console.log('test');
@@ -85,6 +123,12 @@ export default defineComponent({
       cities,
       api: API_KEY,
       isEditMode,
+      addCityActive,
+      dayTime,
+      nightTime,
+      isDay,
+      isNight,
+      resetDays,
     };
   },
 });
