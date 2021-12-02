@@ -1,22 +1,21 @@
 <template>
-  <div class="hourly-weather">
+  <div class="weekly-forecast">
     <div class="container">
-      <div class="hourly-temp" v-for="(item, i) in filteredList" :key="i">
-        <hourly-temp :time="item" />
+      <div class="daily" v-for="(day, index) in filteredList" :key="index">
+        <daily-forecast :day="day" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, toRefs } from 'vue';
+import { defineComponent, toRefs, computed } from 'vue';
 import { ForecastInterface } from '@/type';
-
-import HourlyTemp from '@/components/HourlyTemp.vue';
+import DailyForecast from '@/components/DailyForecast.vue';
 
 export default defineComponent({
-  name: 'HourlyWeather',
-  components: { HourlyTemp },
+  name: 'WeeklyForecast',
+  components: { DailyForecast },
   props: {
     forecast: {
       type: () => Object as ForecastInterface,
@@ -29,11 +28,10 @@ export default defineComponent({
     const filteredList = computed(() => {
       // @ts-ignore: Object is possibly 'null'.
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-      return fc.value.hourly?.splice(0, 10);
+      return fc.value.daily?.splice(1, 8);
     });
 
     return {
-      fc,
       filteredList,
     };
   },
@@ -41,17 +39,13 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.hourly-weather {
+.weekly-forecast {
   padding: 30px 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.7);
-  .container {
-    display: flex;
-    max-width: 100vw;
-    overflow: scroll;
-    padding: 0;
-    margin: 0 20px;
-    &::-webkit-scrollbar {
-      display: none;
+  .daily {
+    margin-bottom: 24px;
+    &:last-child {
+      margin-bottom: 0;
     }
   }
 }
