@@ -142,6 +142,19 @@ export default defineComponent({
   font-family: 'Quicksand', sans-serif;
 }
 
+.day {
+  transition: 500ms ease all;
+  background-color: rgb(59, 150, 240);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.6);
+}
+.night {
+  transition: 500ms ease all;
+  background-color: rgb(20, 42, 95);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.6);
+}
+
 .main {
   height: 100vh;
   max-width: 1024px;
