@@ -1,8 +1,17 @@
 <template>
-  <h3>this weather {{ city }} {{ loading }}</h3>
-  <div>
-    {{ currentWeather }}
-    {{ forecast }}
+  <div class="main">
+    <div v-if="loading" class="loading">
+      <span></span>
+    </div>
+    <div v-else class="weather" :class="{ day: isDay, night: isNight }">
+      <div class="weather-wrap">
+        <current-weather
+          :isNight="isNight"
+          :isDay="isDay"
+          :currentWeather="currentWeather"
+        />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -13,6 +22,8 @@ import { query, where, collection, getDocs } from 'firebase/firestore';
 import axios from 'axios';
 import fireStore from '@/firebase/init';
 import { WeatherInterface } from '@/type';
+
+import CurrentWeather from '@/components/CurrentWeather.vue';
 
 interface ForecastInterface {
   lat?: number;
@@ -126,10 +137,19 @@ interface ForecastInterface {
 
 export default defineComponent({
   name: 'Weather-app',
+  components: { CurrentWeather },
   props: {
     api: {
       type: String,
       require: true,
+    },
+    isDay: {
+      type: Boolean,
+      default: false,
+    },
+    isNight: {
+      type: Boolean,
+      default: false,
     },
   },
   setup(props, context) {
@@ -138,8 +158,8 @@ export default defineComponent({
     const { city } = route.params;
 
     const loading = ref<boolean>(true);
-    let forecast = reactive<ForecastInterface>({});
-    let currentWeather = reactive<WeatherInterface>({});
+    const forecast = reactive<ForecastInterface>({});
+    const currentWeather = reactive<WeatherInterface>({});
     const currentTime = ref<number>();
     // methods
     const getWeather = async () => {
@@ -150,8 +170,9 @@ export default defineComponent({
 
       const querySnapshot = await getDocs(q);
       querySnapshot.forEach(async (doc) => {
+        console.log('weather :', doc.data());
         const { currentweather: cWeather } = doc.data();
-        currentWeather = cWeather;
+        Object.assign(currentWeather, cWeather);
         const lat = currentWeather?.coord?.lat || 0;
         const lon = currentWeather?.coord?.lon || 0;
         const url = 'https://api.openweathermap.org/data/2.5/onecall';
@@ -167,7 +188,7 @@ export default defineComponent({
         await axios
           .get(url, params)
           .then((res) => {
-            forecast = res.data as ForecastInterface;
+            Object.assign(forecast, res.data as ForecastInterface);
           })
           .finally(() => {
             loading.value = false;
@@ -179,10 +200,14 @@ export default defineComponent({
     const getCurrentTime = () => {
       const dateObj = new Date();
       currentTime.value = dateObj.getHours();
-      // @ts-ignore: Object is possibly 'null'.
-      const sunrise = new Date(currentWeather?.sys?.sunrise * 1000).getHours();
-      // @ts-ignore: Object is possibly 'null'.
-      const sunset = new Date(currentWeather?.sys?.sunset * 1000).getHours();
+      const sunrise = new Date(
+        // @ts-ignore: Object is possibly 'null'.
+        currentWeather?.sys?.sunrise * 1000
+      ).getHours();
+      const sunset = new Date(
+        // @ts-ignore: Object is possibly 'null'.
+        currentWeather?.sys?.sunset * 1000
+      ).getHours();
 
       if (currentTime.value > sunrise && currentTime.value < sunset) {
         context.emit('is-day');
@@ -210,7 +235,37 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-h3 {
-  padding-top: 100px;
+.loading {
+  @keyframes spin {
+    to {
+      transform: rotateZ(360deg);
+    }
+  }
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+  span {
+    display: block;
+    width: 60px;
+    height: 60px;
+    margin: 0 auto;
+    border: 2px solid transparent;
+    border-top-color: #142a5f;
+    border-radius: 50%;
+    animation: spin ease 1000ms infinite;
+  }
+}
+.weather {
+  transition: 500ms ease all;
+  overflow-y: scroll;
+  width: 100%;
+  height: 100%;
+  .weather-wrap {
+    overflow: hidden;
+    max-width: 1024px;
+    margin: 0 auto;
+  }
 }
 </style>

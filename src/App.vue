@@ -13,6 +13,8 @@
       @is-day="dayTime"
       @is-night="nightTime"
       @reset-days="resetDays"
+      :is-day="isDay"
+      :is-night="isNight"
     />
   </div>
 </template>
