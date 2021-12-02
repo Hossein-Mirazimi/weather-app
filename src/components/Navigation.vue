@@ -96,11 +96,11 @@ header {
   .right {
     i {
       font-size: 20px;
-    }
-
-    i::nth-child(2),
-    i::nth-child(3) {
-      margin-left: 16px;
+      cursor: pointer;
+      &:nth-child(2),
+      &:nth-child(3) {
+        margin-left: 16px;
+      }
     }
   }
 

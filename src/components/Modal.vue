@@ -2,11 +2,13 @@
   <div @click.self="closeModal" class="modal" ref="modal">
     <div class="modal-wrap" ref="modalWrap">
       <label for="city-name">Enter Location:</label>
+      <div v-if="error" class="error">{{ error }}</div>
       <input
         type="text"
         name="city-name"
         placeholder="Search By City Name"
         v-model="city"
+        @keyup.enter="addCity"
       />
       <button @click="addCity">Add</button>
     </div>
@@ -17,6 +19,7 @@
 import axios from 'axios';
 import { defineComponent, ref } from 'vue';
 import { collection, addDoc } from 'firebase/firestore';
+import { CityInterface } from '@/type';
 
 import firestore from '@/firebase/init';
 
@@ -27,37 +30,47 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    cities: {
+      type: Object as () => CityInterface[],
+      required: true,
+    },
   },
   setup(props, context) {
     const city = ref<string>('');
+    const error = ref<string>('');
 
     const closeModal = () => {
       context.emit('close');
     };
 
     const addCity = async () => {
-      if (city.value !== '') {
-        console.log('add city');
+      if (!city.value) {
+        error.value = 'field cannot be empty';
+      } else if (
+        props.cities.some((res) => res.city === city.value.toLowerCase())
+      ) {
+        alert(`${city.value.toLowerCase()} already exists`);
+      } else {
         try {
           const url = 'https://api.openweathermap.org/data/2.5/weather';
           const params = { params: { q: city.value, appid: props.api } };
           const { data } = await axios.get(url, params);
-          console.log(data);
+          error.value = '';
           const document = collection(firestore, 'cities');
           // const document = doc(firestore, 'cities');
           addDoc(document, {
-            city: city.value,
+            city: city.value.toLowerCase(),
             currentweather: data,
           }).then(() => {
             closeModal();
           });
         } catch (err) {
-          console.log(err);
+          error.value = `${city.value} does not exist, please try again`;
         }
       }
     };
 
-    return { city, closeModal, addCity };
+    return { city, closeModal, addCity, error };
   },
 });
 </script>
@@ -87,7 +100,10 @@ export default defineComponent({
     background-color: #31363d;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
       0 2px 4px -1px rgba(0, 0, 0, 0.06);
-
+    .error {
+      color: #f33535;
+      margin-top: 12px;
+    }
     input {
       color: #fff;
       border: none;

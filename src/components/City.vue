@@ -2,7 +2,7 @@
   <div @click="goToWeather" class="city">
     <i
       v-if="edit"
-      @click.self="removeCity"
+      @click.stop="removeCity"
       class="far fa-trash-alt edit"
       ref="edit"
     />

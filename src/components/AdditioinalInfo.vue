@@ -45,6 +45,7 @@ export default defineComponent({
       // @ts-ignore: Object is possibly 'null'.
       new Date(currentWeather.value.sys?.sunrise * 1000).toLocaleString(
         'en-us',
+        // @ts-ignore
         { timeStyle: 'short' }
       )
     );
@@ -52,6 +53,7 @@ export default defineComponent({
       // @ts-ignore: Object is possibly 'null'.
       new Date(currentWeather.value.sys?.sunset * 1000).toLocaleString(
         'en-us',
+        // @ts-ignore
         { timeStyle: 'short' }
       )
     );
