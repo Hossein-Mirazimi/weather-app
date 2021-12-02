@@ -12,6 +12,7 @@
         />
         <hourly-weather :forecast="forecast" />
         <weekly-forecast :forecast="forecast" />
+        <additioinal-info :currentWeather="currentWeather" />
       </div>
     </div>
   </div>
@@ -28,10 +29,16 @@ import { WeatherInterface, ForecastInterface } from '@/type';
 import CurrentWeather from '@/components/CurrentWeather.vue';
 import HourlyWeather from '@/components/HourlyWeather.vue';
 import WeeklyForecast from '@/components/WeeklyForecast.vue';
+import AdditioinalInfo from '@/components/AdditioinalInfo.vue';
 
 export default defineComponent({
   name: 'Weather-app',
-  components: { CurrentWeather, HourlyWeather, WeeklyForecast },
+  components: {
+    CurrentWeather,
+    HourlyWeather,
+    WeeklyForecast,
+    AdditioinalInfo,
+  },
   props: {
     api: {
       type: String,
