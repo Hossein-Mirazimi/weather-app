@@ -47,7 +47,7 @@ export default defineComponent({
     const { city: cityDetail, editMode: edit } = toRefs(props);
 
     const temp = computed<number>( // @ts-ignore: Object is possibly 'null'.
-      () => Math.round(cityDetail.currentweather.main.temp) || 0
+      () => Math.round(cityDetail.value.currentweather?.main?.temp) || 0
     );
 
     const src = computed(() =>
